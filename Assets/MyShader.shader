@@ -1,7 +1,8 @@
 Shader "Custom/MyShader"
 {
     Properties {
-        _Bump("Bump",2D) = "white"{}
+        _DiffuseColor("Diffuse Color", Color) = (1.0,1.0,1.0)
+        _EmissionColor("Emission Color", Color) = (0.0,0.0,0.0)
     }
 
     SubShader
@@ -13,14 +14,15 @@ Shader "Custom/MyShader"
         #pragma surface surf Lambert
         struct Input
         {
-            float2 uv_Bump;
+            float4 color: COLOR;
         };
-        sampler2D _Bump;
+        float4 _DiffuseColor;
+        float4 _EmissionColor;
         
         void surf(Input IN,inout SurfaceOutput o)
         {
-            o.Albedo = half3(1.0,0.6,0.4);
-            o.Normal = UnpackNormal(tex2D(_Bump,IN.uv_Bump));
+            o.Albedo = _DiffuseColor;
+            o.Emission = _EmissionColor;
         }
         ENDCG
     }

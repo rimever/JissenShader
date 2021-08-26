@@ -2,25 +2,32 @@ Shader "Custom/MyShader"
 {
     Properties {
         _DiffuseColor("Diffuse Color", Color) = (1.0,1.0,1.0)
+		_Cube("Cubemap", CUBE) = "" {}
+		_Bump("Bump", 2D) = "white" {}
     }
 
     SubShader
     {
         Tags { "RenderType" = "Opaque"}
-        Cull off
+
         CGPROGRAM
 
         #pragma surface surf Lambert
         struct Input
         {
-            float4 screenPos;
+			float2 uv_Bump;
+            float3 worldRefl;
+			INTERNAL_DATA
         };
-        float4 _DiffuseColor;
+        float3 _DiffuseColor;
+		samplerCUBE _Cube;
+		sampler2D _Bump;
         
         void surf(Input IN,inout SurfaceOutput o)
         {
-            o.Albedo = _DiffuseColor;
-            clip(frac((IN.screenPos.y / IN.screenPos.w) * 20) - 0.5);
+            o.Albedo = _DiffuseColor * 0.5;
+			o.Normal = UnpackNormal(tex2D(_Bump, IN.uv_Bump));
+			o.Emission = texCUBE(_Cube, WorldReflectionVector(IN, o.Normal)).rgb;
         }
         ENDCG
     }

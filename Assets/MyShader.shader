@@ -1,36 +1,23 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Custom/MyShader"
 {
-    Properties {
-		_Textture("Texture",2D) = "white" {}
-    }
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque"}
-
-        CGPROGRAM
-
-        #pragma surface surf Lambert finalcolor:mycolor vertex:myvert
-        struct Input
-        {
-			float2 uv_Texture;
-			float customData;
-        };
-		sampler2D _Texture;
-		void myvert(inout appdata_full v, out Input data) {
-			UNITY_INITIALIZE_OUTPUT(Input,data);
-			data.customData = max(0,0.5*sin((v.vertex.y + _Time.x * 5) * 3.14159 * 8));
-		}
-
-		void mycolor(Input IN,SurfaceOutput o,inout fixed4 color) {
-			color += float4(1.0,0.0,0.0,1.0) * IN.customData;
-		}
-
-        void surf(Input IN,inout SurfaceOutput o)
-        {
-            o.Albedo = tex2D(_Texture,IN.uv_Texture).rgb;
-        }
+		Pass {
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#include "UnityCG.cginc"
+			float4 vert(float4 v:POSITION) : SV_POSITION {
+				return UnityObjectToClipPos(v);
+			}
+			fixed4 frag() : COLOR {
+				return fixed4(1.0,0.0,0.0,1.0);
+			}
         ENDCG
-    }
+    	}
+	}
     FallBack "Diffuse"
 }
